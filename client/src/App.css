@@ -1,6 +1,6 @@
 #root {
- margin: 0;
- padding: 0;
+ /* margin: 0;
+ padding: 0; */
  box-sizing: border-box;
 }
 h2 {
@@ -89,7 +89,7 @@ input {
   background-color: #fff;
 }
 
-button {
+.btn {
   width: 100%; 
   display:block; 
   background-color: #555 !important;
@@ -97,8 +97,4 @@ button {
   color: #fff !important; 
   border-radius: 5px;
   padding: 7px 0px !important; 
-}
-
-form h1 {
-  
 }

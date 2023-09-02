@@ -1,5 +1,7 @@
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import {ToastContainer} from 'react-toastify'; 
+import 'react-toastify/dist/ReactToastify.css'; 
+
+
 import './App.css'
 import { Route, Routes } from 'react-router-dom'
 import PageNotFound from './pages/PageNotFound'
@@ -11,7 +13,7 @@ import Register from './pages/Register'
 function App() {
 
   return (
-    <>
+    <div>
       <Routes>
         <Route path='/' element={<Layout/>}>
           <Route index element={<IndexPage/> } /> 
@@ -20,7 +22,8 @@ function App() {
         </Route>
         <Route path='*' element={<PageNotFound/>} /> 
       </Routes>
-    </>
+      <ToastContainer/>
+    </div>
   )
 }
 

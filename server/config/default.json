@@ -1,0 +1,4 @@
+{
+    "JWT_SECRET":"anythingoverhere8", 
+    "SALT": 12
+}
