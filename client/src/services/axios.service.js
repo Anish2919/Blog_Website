@@ -10,13 +10,25 @@ const axiosConfig = {
     }
 }
 
+const axiosConfigMulti = {
+    withCredentials:true, 
+    headers: {
+        'content-type':'multipart/form-data',
+    }
+}
 
-export const postData = async(url, body) => {
+
+export const postData = async(url, body, multi='') => {
     try{
-        const response = await axios.post(`${SERVER_URL}/${url}`, body, axiosConfig); 
+        const config = (multi==='') ? axiosConfig : axiosConfigMulti; 
+        const response = await axios.post(`${SERVER_URL}/${url}`, body, config); 
         return response; 
     } catch(error) {
-        return error.response; 
+        if(error.response) {
+            return error.response; 
+        } else {
+            return {msg:'Something went wrong!'}
+        }
     }
 } 
 

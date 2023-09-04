@@ -98,3 +98,8 @@ input {
   border-radius: 5px;
   padding: 7px 0px !important; 
 }
+
+
+form.loginForm h1 {
+  text-align: left;
+}

@@ -57,10 +57,7 @@ const Login = () => {
             
             {/* INPUT PASSWORD */}
             <input className='' type={showPassword ? 'text' : 'password'} autoComplete='current-password' placeholder='password' name='password' 
-            {...register('password', {required:'Password is required!', pattern:{
-                value: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/, 
-                message: 'Password must include at least one Uppercase, Lowercase, number and character'
-            }})} />
+            {...register('password', {required:'Password is required!'})} />
             {/* error message for password */}
             {errors.password && (<span className='block px-3 font-semibold my-3 text-muted text-sm  text-red-500 '>{errors.password.message}</span>)}
 

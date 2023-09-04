@@ -44,3 +44,25 @@ export const promiseToast = async (waiting_message, promise) => {
         }
       }); 
 }
+
+export const toastPromise = (waiting_message, promise) => {
+  return toast.promise(promise, {
+      pending: {
+        render() {
+          return waiting_message; 
+        }
+      }, 
+      success: {
+        render({data}) {
+         return data; 
+        }
+      }, 
+      error: {
+        render({data}) {
+          // when the promise reject, data will contains the error
+          // return <MyErrorComponent message={data.msg} /> 
+          return data; 
+        }
+      }
+    }); 
+}

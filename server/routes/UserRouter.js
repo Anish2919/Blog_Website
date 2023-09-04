@@ -6,24 +6,24 @@ const verifyPayloads = require('../middleware/VerifyPayloads');
 // config router 
 const router = express.Router(); 
 
+// multer 
+const multer = require('multer'); 
+const uploadMiddleware = multer({dest:'uploads/'}); 
+
+
 
 // register user 
 router.post("/signup",verifyPayloads.verifyRegisterSchema, controller.signUpUserController); 
-
 // login user 
 router.post('/signin', controller.signInUserController); 
-
-
-// GET Requests 
-router.get('/test', (req, res) => {
-    res.status(400).send('successfull get request.'); 
-})
-
+// logout route 
+router.get('/logout', controller.logoutController); 
 // check profile 
 router.get('/profile', controller.checkProfileController); 
 
-// logout route 
-router.get('/logout', controller.logoutController); 
+
+// POST 
+router.post('/createpost',uploadMiddleware.single('file'), controller.createPostController); 
 
 
 module.exports = router; 

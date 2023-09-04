@@ -4,7 +4,11 @@ const jwt = require('jsonwebtoken');
 const config = require('../config/default.json'); 
 
 const mongoose = require('mongoose'); 
-const { createNewError, checkCookiesFromTheResponse } = require('../helper/utils');
+const { createNewError, checkCookiesFromTheResponse } = require('../helper/utils'); 
+
+
+const fs = require('fs'); 
+const PostModel = require('../models/Post');
 
 
 
@@ -129,9 +133,36 @@ const logoutController = async (req, res) => {
     }
 }
 
+
+// create new post Controller 
+const createPostController = async(req, res) => {
+    try{
+        const {originalname, path} = req.file;
+        const parts = originalname.split('.'); 
+        const ext = parts[parts.length - 1]; 
+        const newPath = path+'.'+ ext;
+        fs.renameSync(path, newPath);
+        
+        const {title, summary, content} = req.body; 
+        const newPost = await PostModel.create({title, summary, content, cover: newPath}); 
+        if(!newPost) {
+            const postError = createNewError('Something wrong with the file!', 400); 
+            throw postError; 
+        } 
+
+        res.status(201).json({msg:'Post created successfully.'}); 
+    } catch(error) {
+        if(error && error.status && error.message) {
+            return res.status(error.status).json({msg:error.message}); 
+        }
+        return res.status(500).json(error); 
+    }
+}
 module.exports = {
     signUpUserController, 
     signInUserController,
     checkProfileController, 
     logoutController, 
+    createPostController,
+
 }
