@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken');
 const config = require('../config/default.json'); 
 
 const mongoose = require('mongoose'); 
+const { createNewError, checkCookiesFromTheResponse } = require('../helper/utils');
+
 
 
 const signUpUserController = async(req, res) => {
@@ -72,7 +74,11 @@ const signInUserController = async(req, res) => {
                 id: userDoc._id, 
             }, config.JWT_SECRET, {expiresIn:'1h'}, function(err, token) {
                 if(err) throw err; 
-                return res.status(200).cookie('access_token',token).json({msg:'Successfully Logged In'})
+
+                res.cookie('token', token, {
+                    secure: true, // Set to true when using HTTPS
+                    sameSite: 'none', // Specify the SameSite attribute
+                }).json({msg:'Successfully Logged In', id:userDoc._id, username:username}); 
             });  
         } else {
             return res.status(400).json({msg:'Password doesnot match.'})
@@ -85,8 +91,47 @@ const signInUserController = async(req, res) => {
     }
 }
 
+const checkProfileController = async(req, res) => { 
+    try{
+        const {token} = req.cookies ;  
+        if(!token) {
+            const newError = await createNewError('Token missing.', 400); 
+            throw newError; 
+        }
+    
+        jwt.verify(token, config.JWT_SECRET, (err, info) => {
+            if(err) throw createNewError('Unauthorized token', 401); 
+            res.json(info); 
+        })
+    } catch(err) {
+        if(err.status && err.message) {
+            return res.status(err.status).json({msg:err.message}); 
+        } else {
+            return res.status(500).json({msg: 'Internal Server Error!'}); 
+        }
+    }
+}
+
+// logout controller 
+const logoutController = async (req, res) => {
+    try{
+        await checkCookiesFromTheResponse(req); 
+        res.cookie('token', '', {
+            secure:true, 
+            sameSite:'none'
+        }).json('ok'); 
+    } catch(err) {
+        if(err.status && err.message) {
+            return res.status(err.status).json({msg:err.message})
+        } else {
+            return res.status(500).json({msg:'Internal Server Error!'}); 
+        }
+    }
+}
 
 module.exports = {
     signUpUserController, 
     signInUserController,
+    checkProfileController, 
+    logoutController, 
 }

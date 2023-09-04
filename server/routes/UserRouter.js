@@ -19,5 +19,11 @@ router.get('/test', (req, res) => {
     res.status(400).send('successfull get request.'); 
 })
 
+// check profile 
+router.get('/profile', controller.checkProfileController); 
+
+// logout route 
+router.get('/logout', controller.logoutController); 
+
 
 module.exports = router; 

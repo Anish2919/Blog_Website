@@ -9,20 +9,23 @@ import Layout from './components/layout/Layout'
 import IndexPage from './pages/IndexPage'
 import Login from './pages/Login'
 import Register from './pages/Register'
+import { UserContextProvider } from './context/UserState';
 
 function App() {
 
   return (
     <div>
-      <Routes>
-        <Route path='/' element={<Layout/>}>
-          <Route index element={<IndexPage/> } /> 
-          <Route path='login' element={<Login/> } /> 
-          <Route path='register' element={<Register/> }/>
-        </Route>
-        <Route path='*' element={<PageNotFound/>} /> 
-      </Routes>
-      <ToastContainer/>
+      <UserContextProvider>
+        <Routes>
+          <Route path='/' element={<Layout/>}>
+            <Route index element={<IndexPage/> } /> 
+            <Route path='login' element={<Login/> } /> 
+            <Route path='register' element={<Register/> }/>
+          </Route>
+          <Route path='*' element={<PageNotFound/>} /> 
+        </Routes>
+        <ToastContainer/>
+      </UserContextProvider>
     </div>
   )
 }

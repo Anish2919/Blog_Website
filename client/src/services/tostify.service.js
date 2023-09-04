@@ -1,15 +1,15 @@
 import { toast } from 'react-toastify';
 
 const toastConfig = {
-    position: "top-center",
-    autoClose: 5000,
-    hideProgressBar: false,
-    closeOnClick: true,
-    pauseOnHover: true,
-    draggable: true,
-    progress: 1,
-    theme: "colored",
-    }; 
+  position: "top-right",
+  autoClose: 3000,
+  hideProgressBar: false,
+  closeOnClick: true,
+  pauseOnHover: true,
+  draggable: true,
+  progress: undefined,
+  theme: "light"
+}; 
 
 export const successToast = (message) => {
     toast.success(message, toastConfig); 

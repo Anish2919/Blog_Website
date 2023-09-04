@@ -3,11 +3,14 @@ const app = express();
 
 const cors = require('cors');  
 const mongoose = require('mongoose');
+const cookieParser = require('cookie-parser'); 
+
 const userRouter = require('./routes/UserRouter');  
 
 
-app.use(cors({credentials:true, origin: 'http://127.0.0.1:5173'})); 
+app.use(cors({origin:'http://127.0.0.1:5173', credentials:true})); 
 app.use(express.json()); 
+app.use(cookieParser()); 
 
 // post 
 const PORT = 5500; 

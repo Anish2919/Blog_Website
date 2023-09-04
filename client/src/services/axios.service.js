@@ -14,9 +14,17 @@ const axiosConfig = {
 export const postData = async(url, body) => {
     try{
         const response = await axios.post(`${SERVER_URL}/${url}`, body, axiosConfig); 
-        console.log(response.status); 
         return response; 
     } catch(error) {
         return error.response; 
     }
 } 
+
+export const getData = async(url) => {
+    try{
+        const response = await axios.get(`${SERVER_URL}/${url}`, axiosConfig); 
+        return response; 
+    } catch(err) {
+        return error.response;  
+    }
+}

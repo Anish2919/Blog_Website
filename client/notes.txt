@@ -1,0 +1,12 @@
+// checking if the user logged in. 
+
+first created profile router that checks the cookies and verifies the user. 
+
+for reading cookies, we need to add cookie parser in the node js. 
+ 
+npm install cookie-parser 
+
+const cookieParser = require('cookie-parser'); 
+app.use(cookieParser());  
+
+

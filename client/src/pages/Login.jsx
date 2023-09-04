@@ -1,13 +1,17 @@
-import React, { useRef, useState } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import {useForm} from 'react-hook-form'; 
 import { postData } from '../services/axios.service';
 import {Navigate} from 'react-router-dom'; 
 import { successToast, warningToast } from '../services/tostify.service';
+import { UserContext } from '../context/UserState';
 
 const Login = () => {
     const [userData, setUserData] = useState({username:'', password:''}); 
     const [showPassword, setShowPassword] = useState(false); 
-    const [redirect, setRedirect] = useState(false); 
+    const [redirect, setRedirect] = useState(false);  
+
+    // config (useContext); 
+    const {userInfo, setUserInfo} = useContext(UserContext); 
 
     const iconRef = useRef(); 
 
@@ -25,8 +29,12 @@ const Login = () => {
     const login = async(data) => {
       const response = await postData('user/signin', data); 
       if(response && response.status===200) {
-        setRedirect(true); 
-        successToast(response.data.msg); 
+        const {username, id, msg} = response.data; 
+        // success toast 
+        successToast(msg);  
+        // SET USER INFO USING useContext
+        setUserInfo({id, username}); 
+        setRedirect(true);
       } else if(response && response.status===400) {
         setRedirect(false); 
         warningToast(response.data.msg); 
