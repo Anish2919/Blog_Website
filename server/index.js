@@ -12,6 +12,9 @@ app.use(cors({origin:'http://127.0.0.1:5173', credentials:true}));
 app.use(express.json()); 
 app.use(cookieParser()); 
 
+// public uploads folder 
+app.use('/uploads', express.static(__dirname  + '/uploads')); 
+
 // post 
 const PORT = 5500; 
 const MONGOOSE_PW = 'yo7Lr9l4ZFXLRDSo'; 

@@ -11,6 +11,7 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import { UserContextProvider } from './context/UserState';
 import CreatePost from './pages/CreatePost';
+import PostPage from './pages/PostPage';
 
 function App() {
 
@@ -22,7 +23,8 @@ function App() {
             <Route index element={<IndexPage/> } /> 
             <Route path='login' element={<Login/> } /> 
             <Route path='register' element={<Register/> }/>
-            <Route path='create' element={<CreatePost/>} /> 
+            <Route path='create' element={<CreatePost/>} />
+            <Route path='post/:id' element={<PostPage/>} />  
           </Route>
           <Route path='*' element={<PageNotFound/>} /> 
         </Routes>

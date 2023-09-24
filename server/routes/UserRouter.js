@@ -25,5 +25,9 @@ router.get('/profile', controller.checkProfileController);
 // POST 
 router.post('/createpost',uploadMiddleware.single('file'), controller.createPostController); 
 
+router.get('/post', controller.getPostController); // get posts 
+
+router.get('/post/:id', controller.getSiglePostController);  // get Single Post Router 
+
 
 module.exports = router; 

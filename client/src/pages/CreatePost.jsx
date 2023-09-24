@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css'; 
-import {  postData, postMutliData } from '../services/axios.service';
+import {  postData} from '../services/axios.service';
 import { toastPromise } from '../services/tostify.service';
 
 const CreatePost = () => {
@@ -33,7 +33,10 @@ const CreatePost = () => {
             reject('Something went wrong'); 
         }); 
 
-        toastPromise('creating post... please wait', promise); 
+        toastPromise('creating post... please wait', promise).then(() => {
+            reset(); 
+            setContent(''); 
+        }); 
     }
 
   return (

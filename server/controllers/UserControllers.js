@@ -67,9 +67,8 @@ const signInUserController = async(req, res) => {
         // check if user is available 
         const userDoc = await User.findOne({username}); 
         if(!userDoc) {
-            const userNotFoundError = new Error('User not Found!'); 
-            userNotFoundError.status = 404; 
-            throw userNotFoundError; 
+            const newError = createNewError('User not Found! Please register first', 404); 
+            throw newError;
         }
         const checkPwd = bcrypt.compareSync(password, userDoc.password); 
         if(checkPwd) {
@@ -137,6 +136,7 @@ const logoutController = async (req, res) => {
 // create new post Controller 
 const createPostController = async(req, res) => {
     try{
+        const {token} = req.cookies; 
         const {originalname, path} = req.file;
         const parts = originalname.split('.'); 
         const ext = parts[parts.length - 1]; 
@@ -144,13 +144,18 @@ const createPostController = async(req, res) => {
         fs.renameSync(path, newPath);
         
         const {title, summary, content} = req.body; 
-        const newPost = await PostModel.create({title, summary, content, cover: newPath}); 
-        if(!newPost) {
-            const postError = createNewError('Something wrong with the file!', 400); 
-            throw postError; 
-        } 
 
-        res.status(201).json({msg:'Post created successfully.'}); 
+        jwt.verify(token, config.JWT_SECRET, async (err, info) => {
+            if(err) throw createNewError('Unauthorized token', 401); 
+
+            const newPost = await PostModel.create({title, summary, content, author:info.id, cover: newPath}); 
+            if(!newPost) {
+                const postError = createNewError('Something wrong with the file!', 400); 
+                throw postError; 
+            } 
+            res.status(201).json({msg:'Post created successfully.'}); 
+        })
+
     } catch(error) {
         if(error && error.status && error.message) {
             return res.status(error.status).json({msg:error.message}); 
@@ -158,11 +163,58 @@ const createPostController = async(req, res) => {
         return res.status(500).json(error); 
     }
 }
+
+// get post controller 
+const getPostController = async(req, res) => {
+    try{
+        const posts = await PostModel.find()
+            .populate('author', 'username')
+            .sort({createdAt:-1}) 
+        return res.status(200).json({posts:posts}); 
+
+    } catch(error) {
+        if(error && error.status && error.message) {
+            return res.status(error.status).json({msg:error.message}); 
+        } 
+        return res.status(500).json({msg:'Internal Server Error'}); 
+    }
+} 
+
+// get single Post 
+const getSiglePostController = async(req, res) => {
+    try {
+        // getting post id from params 
+        const {id} = req.params; 
+        
+        // finding post by id
+        const post = await PostModel.findById({_id:id}).populate('author', ['username']); 
+
+        // if there is no post, create new error with 404 status code and throw
+        if(!post) {
+            const postError = createNewError('Post not found', 404); 
+            throw postError; 
+        }
+
+        // if post is available return post details
+        return res.status(200).json(post); 
+
+    } catch (error) {
+        // if there any custom error, return customer error code and message, else send internal server error. 
+        if(error && error.status && error.message) {
+            return res.status(error.status).json({msg: error.message}); 
+        } else {
+            return res.status(500).json({msg:'Internal Server Error!'}); 
+        }
+    }
+}
+
 module.exports = {
     signUpUserController, 
     signInUserController,
     checkProfileController, 
     logoutController, 
     createPostController,
+    getPostController, 
+    getSiglePostController
 
 }

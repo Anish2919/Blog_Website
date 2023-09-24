@@ -36,7 +36,8 @@ const Header = () => {
       .then(response => {
         if(response.status===200) {
           navigate('/login'); 
-          successToast('successfully logged out'); 
+          successToast('successfully logged out');
+          setUserInfo({});   
         } else {
           throw new Error(response.msg); 
         }
@@ -44,21 +45,13 @@ const Header = () => {
       .catch(error => {
         console.log('error from logout: ', error); 
       })
-
-    await fetch('http://localhost:5500/user/logout', {
-      credentials:'include'
-    }).then((res) => {
-      setUserInfo({}); 
-    }).catch(err => {
-      console.log('error from logout: ', err); 
-    })
   }
   
   const userName = userInfo?.username; 
 
   return (
     <header>
-        <a href="" className='logo'>MyBlog</a>
+        <Link to='/' className='logo'>MyBlog</Link>
         <nav>
           {userName && (
             <>

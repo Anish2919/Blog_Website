@@ -37,6 +37,6 @@ export const getData = async(url) => {
         const response = await axios.get(`${SERVER_URL}/${url}`, axiosConfig); 
         return response; 
     } catch(err) {
-        return error.response;  
+        return err.response; 
     }
-}
+} 
