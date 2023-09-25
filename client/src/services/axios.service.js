@@ -40,3 +40,13 @@ export const getData = async(url) => {
         return err.response; 
     }
 } 
+
+export const deleteData = async(url, postId) => {
+    try {
+        const response = await axios.delete(`${SERVER_URL}/${url}`, axiosConfig)
+        return response; 
+    } catch (error) {
+        return error.response; 
+    }
+} 
+ 

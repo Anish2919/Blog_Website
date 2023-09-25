@@ -27,7 +27,9 @@ router.post('/createpost',uploadMiddleware.single('file'), controller.createPost
 
 router.get('/post', controller.getPostController); // get posts 
 
-router.get('/post/:id', controller.getSiglePostController);  // get Single Post Router 
+router.get('/post/:id', controller.getSiglePostController);  // get Single Post Router  
+router.post('/post/:id',uploadMiddleware.single('file'), controller.updatePostController);  // update post 
+router.delete('/post/:postId', controller.deletePostController); 
 
 
 module.exports = router; 

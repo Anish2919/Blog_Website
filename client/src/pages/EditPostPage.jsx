@@ -1,51 +1,66 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css'; 
-import {  postData} from '../services/axios.service';
+import {  getData, postData} from '../services/axios.service';
 import { toastPromise } from '../services/tostify.service';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
-const CreatePost = () => {
-    // USE FORM HOOK FROM REACT-HOOK-FORM 
-    const {register, formState:{errors}, reset, handleSubmit} = useForm();  
+const EditPostPage = () => {
+     // USE FORM HOOK FROM REACT-HOOK-FORM 
+    const {register, formState:{errors}, reset, handleSubmit, setValue} = useForm();  
 
-    const [content, setContent] = useState(''); 
+    // FOR CONTENT - using react-quill 
+    const [content, setContent] = useState('');  
 
+    // for navigation 
     const navigate = useNavigate(); 
 
-    // handle create button 
-    const createPost = async (data) => {
+    // getting id from params 
+    const {id} = useParams(); 
+
+    useEffect(() => {
+        getData(`user/post/${id}`).then(response => {
+            if(response.status === 200) {
+                const data = response.data; 
+                setValue('title', data.title); 
+                setValue('summary', data.summary); 
+                setContent(data.content);  
+            }
+        })
+    }, []); 
+
+    const editPost = async (data) => {
         const {title, summary, file} = data; 
         const formData = new FormData();
         formData.append('title', title);
         formData.append('summary', summary);
         formData.append('file', file[0]);
         formData.append('content', content);
+        formData.append('id', id); 
+        
 
-        const promise = new Promise(async (resolve, reject) => {
-            const response = await postData('user/createpost', formData, 'multi'); 
-            if(response.status===201) {
+        const updatePostPromise = new Promise( async (resolve, reject) => {
+            const response = await postData(`user/post/${id}`, formData, 'multi');  
+            if(response.status === 200) {
                 resolve(response.data.msg); 
-            } 
-            if(response===400) {
+            } else {
                 reject(response.data.msg); 
-            } 
-            reject('Something went wrong'); 
-        }); 
+            }
+        }) 
 
-        toastPromise('creating post... please wait', promise).then(() => {
-            reset(); 
-            setContent(''); 
-            navigate('/'); 
-        }); 
+        toastPromise('Updating! Please wait...', updatePostPromise)
+            .then(() => {
+                navigate('/'); 
+            }); 
+
+
     }
-
   return (
-    <div>
-      <form encType="multipart/form-data" className='loginForm' onSubmit={handleSubmit(createPost)}>
+<>
+      <form encType="multipart/form-data" className='loginForm' onSubmit={handleSubmit(editPost)}>
         <h1>Create new post</h1>
         <div className="" >
             <input type="text" placeholder='title' {...register('title', {required:'Title is required'})}  />
@@ -60,15 +75,16 @@ const CreatePost = () => {
         <div className="">
             <input type="file" placeholder='Image File'
                 {...register('file', {
-                    required:'Image is required', 
+                    required: false, 
                     validate:(value) => {
-                        // check if the selected file is an image. 
+                        if(!value[0]) {return true}
+                         // check if the selected file is an image. 
                         const acceptedFormat = ['image/jpeg', 'image/png', 'image/gif']; 
                         return acceptedFormat.includes(value[0]?.type) || 'Invalid file type! Please select an image file.'; 
                     }
                 })} />
-                 {errors.image && (<span className='block px-3 font-semibold my-3 text-muted text-sm  text-red-500 '>
-                {errors.image.message}
+            {errors.file && (<span className='block px-3 font-semibold my-3 text-muted text-sm  text-red-500'>
+                {errors.file.message}
             </span>)}
         </div>
         <div className="">
@@ -76,10 +92,10 @@ const CreatePost = () => {
                 setContent(value); 
             }} />
         </div>
-        <button type='submit' className="btn my-3">Create</button>
+        <button type='submit' className="btn my-3">Update Post</button>
       </form>
-    </div>
+    </>
   );
 }
 
-export default CreatePost;
+export default EditPostPage;

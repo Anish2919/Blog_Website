@@ -9,6 +9,7 @@ const { createNewError, checkCookiesFromTheResponse } = require('../helper/utils
 
 const fs = require('fs'); 
 const PostModel = require('../models/Post');
+const { response } = require('express');
 
 
 
@@ -131,7 +132,7 @@ const logoutController = async (req, res) => {
         }
     }
 }
-
+ 
 
 // create new post Controller 
 const createPostController = async(req, res) => {
@@ -208,6 +209,114 @@ const getSiglePostController = async(req, res) => {
     }
 }
 
+const updatePostController = async(req, res) => {
+    let newPath = null, oldCoverPhotoUrl = null;  
+    const {id, title, summary, content } = req.body; 
+    try {
+        // if request has file, then save 
+      if(req.file) {
+        console.log(req.file); 
+        const {originalname, path} = req.file; 
+        const parts = originalname.split('.');
+        const ext = parts[parts.length - 1]; 
+        newPath = path + '.' + ext; 
+        fs.renameSync(path,newPath);  
+      }
+      
+      // get token from the cookies 
+      const {token} = req.cookies;  
+
+      // verify token 
+      await jwt.verify(token,config.JWT_SECRET, async(err, userInfo) => {
+        if(err) throw createNewError('Unauthorized Error', 401); 
+
+        // check if the postDoc is available 
+        const postDoc = await PostModel.findById({_id: id});
+        console.log('postDoc: ', postDoc) 
+
+        if(!postDoc) throw createNewError('Post is not available.', 404);  
+
+        // setting old cover photo url 
+        if(newPath) {
+            // delete old photo 
+            oldCoverPhotoUrl = postDoc.cover; 
+            fs.unlinkSync(oldCoverPhotoUrl); 
+        }
+
+        // checking if the Authors owns the post 
+        const isAuthor = postDoc.author.toString() === userInfo.id.toString(); 
+        console.log(isAuthor);  
+        if(!isAuthor) throw createNewError('Author doesnot match the post author.', 401);  
+
+        // if owns the post, update the post 
+        const updatedPost = await postDoc.updateOne({
+            title: title, 
+            summary: summary, 
+            content: content, 
+            cover: newPath ? newPath : postDoc.cover, 
+        }); 
+
+        // checking if the update is complete and successfull. 
+        if(updatedPost.modifiedCount <= 0 ) {
+            throw createNewError('Something wrong with updating post.', 400); 
+        }   
+
+        // if update is successfull, delete old picture from the file 
+
+
+        return res.status(200).json({msg: "Updated successfully."}); 
+      }); 
+    // 2. verify the post is available  
+    // 3. verify the post author is correct 
+    } catch (error) {
+        if(error && error.status && error.message) {
+            return res.status(error.status).json({msg: error.message}); 
+        } else {
+            return res.status(500).json({msg:'Internal Server Error!'}); 
+        }
+    }
+}
+
+
+const deletePostController = async(req, res) => {
+    try {
+        const {token} = req.cookies; 
+        const {postId} = req.params; 
+    
+        // verify token 
+        await jwt.verify(token, config.JWT_SECRET, async (err, userInfo) => {
+            if(err) throw createNewError('Unauthorized user.', 401); 
+    
+            // check post availability 
+            const postDoc = await PostModel.findById({_id:postId}); 
+            if(!postDoc) throw createNewError('Post not found', 404); 
+
+            // file path 
+            const coverPhotoUrl = postDoc.cover; 
+
+            // check post authority 
+            const isAuthor = postDoc.author.toString() === userInfo.id; 
+            if(!isAuthor) throw createNewError('User doesnot owns the post')
+
+            // delete post 
+            const deletePost = await postDoc.deleteOne({_id:postId}); 
+            if(!deletePost) throw createNewError('No post found.', 404);  
+
+            // delete cover photo from the upload 
+            if(fs.readFileSync(deletePost.cover)) fs.unlinkSync(deletePost.cover);  
+
+            return res.status(200).json({msg: 'Post deleted successfully'}); 
+        })
+    } catch (error) {
+        if(error && error.status && error.message) {
+            return res.status(error.status).json({msg: error.message}); 
+        } else {
+            return res.status(500).json({msg: error.message}); 
+        }
+    }
+
+}
+
 module.exports = {
     signUpUserController, 
     signInUserController,
@@ -215,6 +324,8 @@ module.exports = {
     logoutController, 
     createPostController,
     getPostController, 
-    getSiglePostController
-
+    getSiglePostController, 
+    updatePostController, 
+    deletePostController
 }
+

@@ -3,7 +3,6 @@ import {Link} from 'react-router-dom';
 import {formatISO9075} from 'date-fns'; 
 
 const Posts = ({post}) => {
-  console.log(post.createdAt); 
   return (
         <div className="post border-2 p-3 rounded-md ">
           <div className="image  border border-red-300:">
